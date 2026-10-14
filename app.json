@@ -1,0 +1,14 @@
+{
+  "expo": {
+    "name": "Wedding Album 3D",
+    "slug": "wedding-album-3d",
+    "version": "1.0.0",
+    "orientation": "landscape",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": false,
+    "android": {
+      "package": "com.weddingalbum3d.app",
+      "versionCode": 1
+    }
+  }
+}
