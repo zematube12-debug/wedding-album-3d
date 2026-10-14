@@ -1,1 +1,79 @@
+name: Build Android APK (EAS)
 
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Setup Expo + EAS CLI
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+
+      # Creates the EAS project on your Expo account the first time and
+      # writes its id into app.json (inside this runner only).
+      - name: Link EAS project
+        run: eas init --force --non-interactive
+
+      # EAS refuses to build from a dirty git tree, so commit the change locally
+      - name: Commit EAS project id (local to runner)
+        run: |
+          git config user.name "ci"
+          git config user.email "ci@example.com"
+          git add -A
+          git commit -m "ci: eas project id" || true
+
+      # EAS cannot generate an Android keystore in --non-interactive mode,
+      # so we provide one. If you add the secrets below, the same key is reused
+      # on every build (required for installing APK updates over an old install).
+      #   ANDROID_KEYSTORE_BASE64, ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS
+      - name: Prepare Android signing key
+        env:
+          KS_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KS_PASS: ${{ secrets.ANDROID_KEYSTORE_PASSWORD || 'albumpass123' }}
+          KS_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS || 'albumkey' }}
+        run: |
+          if [ -n "$KS_BASE64" ]; then
+            echo "$KS_BASE64" | base64 -d > android-keystore.jks
+          else
+            keytool -genkeypair -v -storetype JKS \
+              -keystore android-keystore.jks \
+              -storepass "$KS_PASS" -keypass "$KS_PASS" \
+              -alias "$KS_ALIAS" -keyalg RSA -keysize 2048 -validity 10000 \
+              -dname "CN=Wedding Album, OU=App, O=Studio, L=Addis Ababa, ST=AA, C=ET"
+          fi
+          cat > credentials.json <<EOF
+          {
+            "android": {
+              "keystore": {
+                "keystorePath": "./android-keystore.jks",
+                "keystorePassword": "$KS_PASS",
+                "keyAlias": "$KS_ALIAS",
+                "keyPassword": "$KS_PASS"
+              }
+            }
+          }
+          EOF
+
+      # --no-wait: the build runs on Expo's servers; open expo.dev > Builds
+      # on your phone to download the APK. Remove --no-wait to make this job
+      # wait for the result and print the download link in the log.
+      - name: Build APK on EAS
+        run: eas build --platform android --profile preview --non-interactive --no-wait
