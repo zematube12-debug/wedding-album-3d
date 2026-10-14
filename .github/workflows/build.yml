@@ -19,7 +19,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Install EAS CLI
         run: npm install -g eas-cli
@@ -34,16 +34,6 @@ jobs:
 
       - name: Install dependencies
         run: npm install --legacy-peer-deps
-
-      - name: Link EAS project
-        run: eas init --force --non-interactive
-
-      - name: Commit EAS project id (local to runner)
-        run: |
-          git config user.name "ci"
-          git config user.email "ci@example.com"
-          git add -A
-          git commit -m "ci: eas project id" || true
 
       - name: Prepare Android signing key
         env:
