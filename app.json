@@ -2,6 +2,7 @@
   "expo": {
     "name": "Wedding Album 3D",
     "slug": "wedding-album-3d",
+    "owner": "wenda94s-team",
     "version": "1.0.0",
     "orientation": "landscape",
     "userInterfaceStyle": "dark",
@@ -9,6 +10,11 @@
     "android": {
       "package": "com.weddingalbum3d.app",
       "versionCode": 1
+    },
+    "extra": {
+      "eas": {
+        "projectId": "d7ae0a90-d79f-448d-8ce8-6cadbf3abe38"
+      }
     }
   }
 }
