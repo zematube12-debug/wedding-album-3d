@@ -2,7 +2,7 @@
   "expo": {
     "name": "Wedding Album 3D",
     "slug": "wedding-album-3d",
-    "owner": "wenda94s-team",
+    "owner": "wenda94",
     "version": "1.0.0",
     "orientation": "landscape",
     "userInterfaceStyle": "dark",
@@ -13,7 +13,7 @@
     },
     "extra": {
       "eas": {
-        "projectId": "d7ae0a90-d79f-448d-8ce8-6cadbf3abe38"
+        "projectId": "381e4c08-26e4-449a-a4da-90ed8978b3a1"
       }
     }
   }
